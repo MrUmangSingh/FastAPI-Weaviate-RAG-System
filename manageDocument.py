@@ -51,3 +51,24 @@ def uploading_file(client, file, content):
             properties=object_data
         )
     print("Object stored successfully!")
+
+
+def delete_file(client, filename: str):
+    file_uuid = generate_uuid5(filename, DOCUMENT_CLASS)
+    collection = client.collections.get(DOCUMENT_CLASS)
+    exists = collection.query.fetch_object_by_id(file_uuid) is not None
+    if exists:
+        try:
+            collection.data.delete_by_id(file_uuid)
+            print(f"File '{filename}' deleted successfully.")
+        except Exception as e:
+            print(f"Deletion failed: {str(e)}")
+    else:
+        print(f"File '{filename}' does not exist in the database.")
+
+
+def get_files(client):
+    collection = client.collections.get(DOCUMENT_CLASS)
+    response = collection.query.fetch_objects()
+    for obj in response.objects:
+        print(obj.properties["filename"])

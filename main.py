@@ -6,7 +6,7 @@ from fastapi import FastAPI, UploadFile, File
 import uvicorn
 from weaviate.classes.config import Property, DataType
 from weaviate.classes.config import Configure
-from manageDocument import uploading_file
+from manageDocument import uploading_file, delete_file, get_files
 
 load_dotenv()
 
@@ -80,4 +80,8 @@ async def upload_file(file: UploadFile = File(...)):
 
 
 if __name__ == "__main__":
-    uvicorn.run(app, host="0.0.0.0", port=8080)
+    # uvicorn.run(app, host="0.0.0.0", port=8080)
+    # delete_file(client, "requirements.txt")
+    # delete_file(client, "example1.txt")
+    # get_files(client)
+    client.close()
