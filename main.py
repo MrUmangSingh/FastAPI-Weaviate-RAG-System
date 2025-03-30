@@ -1,17 +1,12 @@
 import weaviate
 from weaviate.auth import AuthApiKey
-import boto3
 import os
 from dotenv import load_dotenv
-from langchain_huggingface import HuggingFaceEmbeddings
-from fastapi import FastAPI, UploadFile, File, HTTPException
+from fastapi import FastAPI, UploadFile, File
 import uvicorn
 from weaviate.classes.config import Property, DataType
-from weaviate.classes.query import Filter
-from weaviate.util import generate_uuid5
 from weaviate.classes.config import Configure
-from weaviate.exceptions import UnexpectedStatusCodeError
-import requests
+from manageDocument import uploading_file
 
 load_dotenv()
 
@@ -77,34 +72,12 @@ setup_schema()
 
 
 @app.post("/upload")
-async def upload_document(file: UploadFile = File(...)):
-    print(f"Received file upload request: {file.filename}")
+async def upload_file(file: UploadFile = File(...)):
     content = await file.read()
-    # Assuming text files for simplicity
-    text_content = content.decode("utf-8")
-    file_name = file.filename
-    object_data = {
-        "content": text_content,
-        "filename": file_name
-    }
-    collection = client.collections.get(DOCUMENT_CLASS)
-    file_uuid = generate_uuid5(file_name, DOCUMENT_CLASS)
-
-    exists = collection.query.fetch_object_by_id(file_uuid) is not None
-    if exists:
-        collection.data.replace(
-            uuid=file_uuid,
-            properties=object_data
-        )
-    else:
-        collection.data.insert(
-            uuid=file_uuid,
-            properties=object_data
-        )
-    print("Object stored successfully!")
+    uploading_file(client, file, content)
     client.close()
     return {"message": "Document uploaded successfully."}
 
 
 if __name__ == "__main__":
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+    uvicorn.run(app, host="0.0.0.0", port=8080)
