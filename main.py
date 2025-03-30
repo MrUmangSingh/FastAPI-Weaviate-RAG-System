@@ -57,48 +57,13 @@ def setup_schema():
 
 
 setup_schema()
-# Example data
-text_content = "This is an example document 2."
-file_name = "example1.txt"
-
-# Generate embeddings using all-MiniLM-L6-v2 (replace with your embedding logic)
-# embeddings = embedding_model.encode([text_content])[0].tolist()
-
-# Prepare object data
-object_data = {
-    "content": text_content,
-    "filename": file_name
-}
-
-# Get the collection
-collection = client.collections.get(DOCUMENT_CLASS)
-
-# # INSERT OBJECT INTO WEAVIATE
-file_uuid = generate_uuid5(file_name, DOCUMENT_CLASS)
-# collection.data.replace(
-#     uuid=file_uuid,
-#     properties=object_data
-# )
-exists = collection.query.fetch_object_by_id(file_uuid) is not None
-
-if exists:
-    collection.data.replace(
-        uuid=file_uuid,
-        properties=object_data
-    )
-else:
-    collection.data.insert(
-        uuid=file_uuid,
-        properties=object_data
-    )
-print("Object stored successfully!")
 
 
-response = collection.query.fetch_objects()
+# response = collection.query.fetch_objects()
 
 # Print properties of all objects
-for obj in response.objects:
-    print(obj.properties)
+# for obj in response.objects:
+#     print(obj.properties)
 
 # TO DELETE FILE USING UUID
 # try:
@@ -106,44 +71,40 @@ for obj in response.objects:
 #     print(f"File has been deleted successfully.")
 # except Exception as e:
 #     print(f"Failed to delete file': {e}")
-client.close()
+# client.close()
 
 # Document upload and ingestion
 
 
-# @app.post("/upload")
-# async def upload_document(file: UploadFile = File(...)):
-#     print(f"Received file upload request: {file.filename}")
-#     content = await file.read()
-#     # Assuming text files for simplicity
-#     text_content = content.decode("utf-8")
-#     filename = file.filename
+@app.post("/upload")
+async def upload_document(file: UploadFile = File(...)):
+    print(f"Received file upload request: {file.filename}")
+    content = await file.read()
+    # Assuming text files for simplicity
+    text_content = content.decode("utf-8")
+    file_name = file.filename
+    object_data = {
+        "content": text_content,
+        "filename": file_name
+    }
+    collection = client.collections.get(DOCUMENT_CLASS)
+    file_uuid = generate_uuid5(file_name, DOCUMENT_CLASS)
 
-#     # Generate embeddings
-#     print("Generating embeddings...")
-#     embeddings = embedding_model.encode([text_content])[0].tolist()
-#     print("Embeddings generated successfully.")
-
-#     # # Delete old entries if same filename exists
-#     # print(f"Deleting old embeddings for filename: {filename}")
-#     # client.query.delete(DOCUMENT_CLASS, where={
-#     #     "path": ["filename"],
-#     #     "operator": "Equal",
-#     #     "valueText": filename
-#     # }).do()
-#     # print("Old embeddings deleted successfully.")
-
-#     # Store in Weaviate
-#     print("Storing new embeddings in Weaviate...")
-#     client.batch.configure(batch_size=10)  # Adjust batch size if needed
-#     client.batch.add_data_object(
-#         {"content": text_content, "filename": filename}, DOCUMENT_CLASS, vector=embeddings)
-#     client.batch.flush()
-
-#     print("Document indexed successfully.")
-#     client.close()
-#     return {"message": "Document uploaded and indexed successfully."}
+    exists = collection.query.fetch_object_by_id(file_uuid) is not None
+    if exists:
+        collection.data.replace(
+            uuid=file_uuid,
+            properties=object_data
+        )
+    else:
+        collection.data.insert(
+            uuid=file_uuid,
+            properties=object_data
+        )
+    print("Object stored successfully!")
+    client.close()
+    return {"message": "Document uploaded successfully."}
 
 
-# if __name__ == "__main__":
-#     uvicorn.run(app, host="0.0.0.0", port=8000)
+if __name__ == "__main__":
+    uvicorn.run(app, host="0.0.0.0", port=8000)
