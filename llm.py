@@ -1,6 +1,5 @@
 from langchain_core.runnables import RunnablePassthrough
 from langchain_core.prompts import ChatPromptTemplate
-from langchain_core.output_parsers import StrOutputParser
 from langchain_core.documents import Document
 import os
 from langchain_groq import ChatGroq
@@ -9,6 +8,8 @@ from langchain_core.runnables import RunnableLambda
 from manageDocument import search_files
 import warnings
 from pydantic import PydanticDeprecatedSince211
+from langchain_core.output_parsers import JsonOutputParser
+from pydantic import BaseModel, Field
 
 warnings.filterwarnings(
     "ignore",
@@ -21,9 +22,15 @@ load_dotenv()
 GROQ_API_KEY = os.getenv("GROQ_API_KEY")
 llm = ChatGroq(model_name="llama-3.3-70b-versatile")
 
+
+class StructuredResponse(BaseModel):
+    response: str = Field(description="The answer to the user's question")
+    source: str = Field(description="Filename containing the answer")
+    content_snippet: str = Field(
+        description="Relevant portion of the source document")
+
+
 # Function to format the documents
-
-
 def format_docs(docs: list[Document]) -> str:
     formatted = []
     for i, doc in enumerate(docs, 1):
@@ -40,12 +47,15 @@ def format_docs(docs: list[Document]) -> str:
     return "\n\n".join(formatted) if formatted else "No relevant documents found"
 
 
-template = """Answer the question based only on the following context:
+template = """Answer the question using only the provided context.
+Format your answer as JSON with these keys: response, source, content_snippet.
+
+Context:
 {context}
 
-## ALSO INCLUDE THE SOURCE OF YOUR ANSWER LIKE FILENAME AND CONTENT SNIPPET
-
 Question: {question}
+
+Return only valid JSON, no additional text:
 """
 
 
@@ -75,10 +85,12 @@ def search_and_answer(client, query):
         }
         | ChatPromptTemplate.from_template(template)
         | llm
-        | StrOutputParser()
+        | JsonOutputParser(pydantic_object=StructuredResponse)
     )
 
-    return chain.invoke({
+    response = chain.invoke({
         "question": query,
         "docs": docs
     })
+
+    return response
