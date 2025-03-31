@@ -13,6 +13,7 @@ from weaviate.classes.config import (
     DataType,
     Configure
 )
+from pydantic import BaseModel
 
 load_dotenv()
 
@@ -58,7 +59,8 @@ def setup_schema():
         print(f"Error setting up schema: {e}")
 
 
-setup_schema()
+class SearchRequest(BaseModel):
+    query: str
 
 
 @app.post("/upload")
@@ -68,16 +70,20 @@ async def upload_file(file: UploadFile = File(...)):
     return {"message": "Document uploaded successfully."}
 
 
+@app.post("/search")
+async def search(request: SearchRequest):
+    results = search_and_answer(client, request.query)
+    return results
+
 if __name__ == "__main__":
-    # uvicorn.run(app, host="0.0.0.0", port=8000)
+    setup_schema()
+    uvicorn.run(app, host="0.0.0.0", port=8000)
     # delete_file(client, "coursera u18j840hi5nl.pdf")
     # delete_file(client, "whistleblower-policy-ba-revised.pdf")
-    get_files(client)
+    # get_files(client)
     # search_files(client, "membership of Customer 103")
-    # response = search_and_answer(
-    #     client, "what is father name of ananya singh?")
     # print(response)
-    response = search_and_answer(
-        client, "Total spent of customer 120 and customer 101 together?")
-    print(response)
+    # response = search_and_answer(
+    #     client, "Total spent of customer 120 and customer 101 together?")
+    # print(response)
     client.close()

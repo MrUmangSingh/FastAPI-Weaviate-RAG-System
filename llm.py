@@ -27,7 +27,7 @@ class StructuredResponse(BaseModel):
     response: str = Field(description="The answer to the user's question")
     source: str = Field(description="Filename containing the answer")
     content_snippet: str = Field(
-        description="Relevant portion of the source document")
+        description="Portion of the source document.")
 
 
 # Function to format the documents
