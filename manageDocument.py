@@ -1,7 +1,10 @@
+from weaviate.classes.query import MetadataQuery
 from pypdf import PdfReader
 from docx import Document
 import json
 from weaviate.util import generate_uuid5
+import weaviate
+from weaviate.classes.query import HybridFusion
 
 DOCUMENT_CLASS = "Documents"
 
@@ -15,6 +18,7 @@ def uploading_file(client, file, content):
         text_content = ""
         for page in reader.pages:
             text_content += page.extract_text()
+        print(text_content)
 
     elif file_name.endswith(".docx"):
         document = Document(file.file)
@@ -23,6 +27,7 @@ def uploading_file(client, file, content):
     elif file_name.endswith(".json"):
         try:
             text_content = json.loads(content.decode("utf-8"))
+            print(text_content)
         except json.JSONDecodeError as e:
             print(f"Error decoding JSON: {e}")
             return {"error": "Invalid JSON file"}
@@ -32,8 +37,11 @@ def uploading_file(client, file, content):
     else:
         return {"error": "Unsupported file format"}
 
+    def normalize_text(content):
+        return ' '.join(str(content).split()).strip()
+
     object_data = {
-        "content": text_content,
+        "content": normalize_text(text_content),
         "filename": file_name
     }
     collection = client.collections.get(DOCUMENT_CLASS)
@@ -72,3 +80,28 @@ def get_files(client):
     response = collection.query.fetch_objects()
     for obj in response.objects:
         print(obj.properties["filename"])
+
+
+def search_files(client, query: str, limit: int = 5):
+    response = client.collections.get("Documents").query.hybrid(
+        query=query,
+        alpha=0.7,
+        limit=limit,
+        fusion_type=HybridFusion.RELATIVE_SCORE,
+        auto_limit=10,
+        return_metadata=MetadataQuery(score=True),
+        query_properties=["content^3", "filename"]
+    )
+    threshold = 0.6
+    filtered_results = [
+        result for result in response.objects if result.metadata.score >= threshold]
+    sorted_results = sorted(
+        filtered_results, key=lambda x: x.metadata.score, reverse=True)
+
+    # Print results
+    for obj in sorted_results:
+        print(f"Filename: {obj.properties['filename']}")
+        print(f"Content Snippet: {obj.properties['content']}")
+        print(f"Score: {obj.metadata.score:.3f}")
+        print("-" * 50)
+    return sorted_results

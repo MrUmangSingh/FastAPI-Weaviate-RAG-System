@@ -6,7 +6,12 @@ from fastapi import FastAPI, UploadFile, File
 import uvicorn
 from weaviate.classes.config import Property, DataType
 from weaviate.classes.config import Configure
-from manageDocument import uploading_file, delete_file, get_files
+from manageDocument import uploading_file, delete_file, get_files, search_files
+from weaviate.classes.config import (
+    Property,
+    DataType,
+    Configure
+)
 
 load_dotenv()
 
@@ -39,10 +44,17 @@ def setup_schema():
                 ],
                 vectorizer_config=[
                     Configure.NamedVectors.text2vec_weaviate(
-                        name="title_vector",
-                        source_properties=["title"],
-                        model="Snowflake/snowflake-arctic-embed-l-v2.0")
-                ],
+                        name="content_vector",
+                        source_properties=["content", "filename"],
+                        model="Snowflake/snowflake-arctic-embed-l-v2.0"
+                    )
+                ]
+                # vector_index_config=Configure.VectorIndex.hnsw(
+                #     ef_construction=512,
+                #     ef=200,
+                #     max_connections=64
+                # ),
+                # vector_index_type=VectorIndexType.HNSW
             )
             print("Schema created successfully.")
         else:
@@ -54,34 +66,17 @@ def setup_schema():
 setup_schema()
 
 
-# response = collection.query.fetch_objects()
-
-# Print properties of all objects
-# for obj in response.objects:
-#     print(obj.properties)
-
-# TO DELETE FILE USING UUID
-# try:
-#     collection.data.delete_by_id(uuid="2bb923cc-e2fb-4dad-b253-d517f342b7e6")
-#     print(f"File has been deleted successfully.")
-# except Exception as e:
-#     print(f"Failed to delete file': {e}")
-# client.close()
-
-# Document upload and ingestion
-
-
 @app.post("/upload")
 async def upload_file(file: UploadFile = File(...)):
     content = await file.read()
     uploading_file(client, file, content)
-    client.close()
     return {"message": "Document uploaded successfully."}
 
 
 if __name__ == "__main__":
-    # uvicorn.run(app, host="0.0.0.0", port=8080)
-    # delete_file(client, "requirements.txt")
-    # delete_file(client, "example1.txt")
-    # get_files(client)
+    # uvicorn.run(app, host="0.0.0.0", port=8000)
+    # delete_file(client, "coursera u18j840hi5nl.pdf")
+    # delete_file(client, "whistleblower-policy-ba-revised.pdf")
+    get_files(client)
+    search_files(client, "membership of Customer 103")
     client.close()
