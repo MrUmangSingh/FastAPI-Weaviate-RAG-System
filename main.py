@@ -6,6 +6,7 @@ from fastapi import FastAPI, UploadFile, File
 import uvicorn
 from weaviate.classes.config import Property, DataType
 from weaviate.classes.config import Configure
+from llm import search_and_answer
 from manageDocument import uploading_file, delete_file, get_files, search_files
 from weaviate.classes.config import (
     Property,
@@ -49,12 +50,6 @@ def setup_schema():
                         model="Snowflake/snowflake-arctic-embed-l-v2.0"
                     )
                 ]
-                # vector_index_config=Configure.VectorIndex.hnsw(
-                #     ef_construction=512,
-                #     ef=200,
-                #     max_connections=64
-                # ),
-                # vector_index_type=VectorIndexType.HNSW
             )
             print("Schema created successfully.")
         else:
@@ -78,5 +73,11 @@ if __name__ == "__main__":
     # delete_file(client, "coursera u18j840hi5nl.pdf")
     # delete_file(client, "whistleblower-policy-ba-revised.pdf")
     get_files(client)
-    search_files(client, "membership of Customer 103")
+    # search_files(client, "membership of Customer 103")
+    # response = search_and_answer(
+    #     client, "what is father name of ananya singh?")
+    # print(response)
+    response = search_and_answer(
+        client, "Total spent of customer 120 and customer 101 together?")
+    print(response)
     client.close()

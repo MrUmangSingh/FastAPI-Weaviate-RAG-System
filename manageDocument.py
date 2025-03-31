@@ -99,9 +99,9 @@ def search_files(client, query: str, limit: int = 5):
         filtered_results, key=lambda x: x.metadata.score, reverse=True)
 
     # Print results
-    for obj in sorted_results:
-        print(f"Filename: {obj.properties['filename']}")
-        print(f"Content Snippet: {obj.properties['content']}")
-        print(f"Score: {obj.metadata.score:.3f}")
-        print("-" * 50)
+    # for obj in sorted_results:
+    #     print(f"Filename: {obj.properties['filename']}")
+    #     print(f"Content Snippet: {obj.properties['content']}")
+    #     print(f"Score: {obj.metadata.score:.3f}")
+    #     print("-" * 50)
     return sorted_results
