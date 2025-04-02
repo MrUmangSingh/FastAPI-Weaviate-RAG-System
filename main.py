@@ -95,8 +95,6 @@ if __name__ == "__main__":
     # delete_file(client, "sample.json")
     # delete_file(client, "house-price.json")
     get_files(client)
-    # search_files(client, "membership of Customer 103")
-    # print(response)
     # response = search_and_answer(
     #     client, "Total spent of customer 120 and customer 101 together?")
     # print(response)

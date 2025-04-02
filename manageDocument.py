@@ -4,7 +4,6 @@ from pypdf import PdfReader
 from docx import Document
 import json
 from weaviate.util import generate_uuid5
-import weaviate
 from weaviate.classes.query import HybridFusion
 
 

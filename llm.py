@@ -27,7 +27,7 @@ class StructuredResponse(BaseModel):
     response: str = Field(description="The answer to the user's question")
     source: str = Field(description="Filename containing the answer")
     content_snippet: str = Field(
-        description="Portion of the source document.")
+        description="Full source document.")
 
 
 # Function to format the documents
@@ -49,6 +49,7 @@ def format_docs(docs: list[Document]) -> str:
 
 template = """Answer the question using only the provided context.
 Format your answer as JSON with these keys: response, source, content_snippet.
+GIVE 50 WORDS CONTENT AS content_snippet.
 
 Context:
 {context}
@@ -67,9 +68,9 @@ def search_and_answer(client, query):
     for result in results:
         try:
             doc = Document(
-                page_content=str(result.properties.get("content", "")),
+                page_content=str(result.properties['content']),
                 metadata={
-                    "filename": str(result.properties.get("filename", "unknown")),
+                    "filename": str(result.properties['filename']),
                     "score": float(result.metadata.score)
                 }
             )

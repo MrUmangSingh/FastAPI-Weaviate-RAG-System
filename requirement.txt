@@ -1,0 +1,10 @@
+fastapi
+uvicorn
+weaviate-client
+python-dotenv
+pydantic
+langchain-core
+langchain-groq
+pypdf
+python-docx
+statistics
