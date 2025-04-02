@@ -38,7 +38,7 @@ def format_docs(docs: list[Document]) -> str:
             continue
 
         filename = doc.metadata.get("filename", "unknown")
-        content = doc.page_content[:500] + "..."
+        content = doc.page_content
 
         formatted.append(
             f"DOCUMENT {i} ({filename}) [Relevance: {doc.metadata.get('score', 0):.2f}]:\n{content}"
