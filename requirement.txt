@@ -1,5 +1,6 @@
 fastapi
 uvicorn
+weaviate
 weaviate-client
 python-dotenv
 pydantic
