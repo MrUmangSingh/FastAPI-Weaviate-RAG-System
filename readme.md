@@ -70,7 +70,9 @@ The server will be available at [**http://0.0.0.0:8000**](http://0.0.0.0:8000).
 
 - **Description:** Uploads a document to Weaviate.
 - **Body (multipart/form-data):**
-  - `file`: Select a file (**sample.pdf, data.json**, etc.).
+  - `key`: file (type: file). Don't forget this else it will give you 422 error
+  - `Value`: Select a file (e.g., sample.pdf, data.json)
+
 - **Response:**
 
 ```json
