@@ -68,6 +68,11 @@ class JSONSearchRequest(BaseModel):
     query: str
 
 
+@app.get("/")
+async def root():
+    return {"message": "Welcome to the RAG-Weaviate API! You can upload files and search for answers by /upload, /search and /query-json endpoints."}
+
+
 @app.post("/upload")
 async def upload_file(file: UploadFile = File(...)):
     content = await file.read()
