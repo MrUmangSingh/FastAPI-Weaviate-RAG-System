@@ -133,11 +133,11 @@ The server will be available at [**http://0.0.0.0:8000**](http://0.0.0.0:8000).
 
 - Use the `/upload` endpoint to upload files.
 - The system processes documents based on type (PDF, DOCX, TXT, or JSON).
-- Extracted content is **embedded and stored** in Weaviate.
+- Extracted content is **embedded** using unbuilt `Snowflake/snowflake-arctic-embed-l-v2.0` model and **stored** in Weaviate.
 
 ### **2. Searching Files**
 
-- Use the `/search` endpoint to perform **semantic searches** in the `Documents` collection.
+- Use the `/search` endpoint to perform **semantic searches** in the `Documents` collection using hybrid technique.
 - Results are **ranked based on relevance**.
 
 ### **3. Querying JSON Data**
