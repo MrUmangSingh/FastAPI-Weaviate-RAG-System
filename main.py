@@ -94,12 +94,13 @@ async def query_json(request: JSONSearchRequest):
 if __name__ == "__main__":
     setup_schema()
     uvicorn.run(app, host="0.0.0.0", port=8000)
-    # delete_file(client, "cuet_stats_syllabus.pdf")
+    # delete_file(client, "module6.pdf")
     # delete_file(client, "jam_ana.pdf")
     # delete_file(client, "resume.txt")
+    # delete_file(client, "contract.txt")
     # delete_file(client, "sample.json")
-    # delete_file(client, "house-price.json")
-    get_files(client)
+    # delete_file(client, "sta255h1s.pdf")
+    # get_files(client)
     # response = search_and_answer(
     #     client, "Total spent of customer 120 and customer 101 together?")
     # print(response)
